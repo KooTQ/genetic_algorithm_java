@@ -1,4 +1,4 @@
-package main.GeneticAlgorithm;
+package QuadraticAssignmentProblem.GeneticAlgorithm;
 
 public class AlgorithmMain {
     public static void main(String[] args) {

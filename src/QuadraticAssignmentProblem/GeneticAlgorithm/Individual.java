@@ -1,4 +1,4 @@
-package main.GeneticAlgorithm;
+package QuadraticAssignmentProblem.GeneticAlgorithm;
 
 public interface Individual {
     boolean isValidated();

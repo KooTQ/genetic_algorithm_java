@@ -1,4 +1,4 @@
-package algorithm;
+package QuadraticAssignmentProblem.GeneticAlgorithm;
 
 public class SimplyCodedIndividual implements  Individual{
     private double validationResult;

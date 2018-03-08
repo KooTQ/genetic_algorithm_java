@@ -1,4 +1,4 @@
-package main.GeneticAlgorithm;
+package QuadraticAssignmentProblem.GeneticAlgorithm;
 
 import java.util.Arrays;
 import java.util.Random;
