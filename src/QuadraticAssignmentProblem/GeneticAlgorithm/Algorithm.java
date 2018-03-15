@@ -1,7 +1,5 @@
 package QuadraticAssignmentProblem.GeneticAlgorithm;
 
-import javafx.util.Pair;
-
 import java.util.Arrays;
 import java.util.Random;
 
@@ -14,8 +12,12 @@ public class Algorithm {
     public SimplyCodedIndividual[] individuals;
     private int individualGenomeSize;
     private Random random;
+    private int keepBest;
+    private double crossingProbability;
+    private double mutationProbability;
 
-    public Algorithm(double[][] distances, double[][] weights, int populationSize, long randomSeed){
+    public Algorithm(double[][] distances, double[][] weights, int populationSize, long randomSeed,
+                     double keepBest, double crossingProbability, double mutationProbability){
         this.distances = deepCopy(distances);
         this.weights = deepCopy(weights);
 
@@ -25,14 +27,32 @@ public class Algorithm {
         this.random = new Random(this.randomSeed);
         SimplyCodedIndividual.setInners(this.distances, this.weights);
         populate(this.populationSize);
+        Arrays.sort(individuals);
+        if(crossingProbability >= 0 && crossingProbability <=1.0){
+            this.crossingProbability = crossingProbability;
+        }
+        else {
+            this.crossingProbability = 0;
+        }
+        if(mutationProbability >= 0 && mutationProbability <=1.0){
+            this.mutationProbability = mutationProbability;
+        }
+        else {
+            this.mutationProbability = 0;
+        }
+        if(keepBest >= 0 && keepBest <=1.0){
+            this.keepBest = (int)keepBest*populationSize;
+        }
+        else {
+            this.keepBest = 0;
+        }
     }
 
     public GenerationResult nextGen(){
 //        System.out.println("Generated");
 //        printPopulation(individuals);
-        Arrays.sort(individuals);
         System.out.println("Sorted");
-        printPopulation(individuals);
+//        printPopulation(individuals);
 
         SimplyCodedIndividual[] chosen_ones = roulette();
 //        System.out.println("Chosen ones");
@@ -41,19 +61,32 @@ public class Algorithm {
         SimplyCodedIndividual[] new_invids = crossover0X(chosen_ones);
 
         System.arraycopy(new_invids, 0, individuals, 0, new_invids.length);
+        Arrays.sort(individuals);
         return new GenerationResult(0,0,0,0,0);
     }
 
     private SimplyCodedIndividual[] crossover0X(SimplyCodedIndividual[] chosen_ones) {
         SimplyCodedIndividual[] result = new SimplyCodedIndividual[populationSize];
+        int i=0;
         SimplyCodedIndividual first, second;
-        result[0] = individuals[individuals.length-1];
-        for(int i = 1; i< populationSize; i+=2){
+        for(;i <= keepBest; i++) {
+            result[0] = individuals[0];
+        }
+        Random crossing_random = new Random(randomSeed);
+        for(; i< populationSize; i+=2){
             first = chosen_ones[i];
             second = chosen_ones[i-1];
-            result[i] = crossOX_inner(first, second);
-            if(i+1 <populationSize)
-                result[i+1] = crossOX_inner(second, first);
+
+            if(crossing_random.nextDouble() <= crossingProbability) {
+                result[i] = crossOX_inner(first, second);
+                if(i+1 <populationSize)
+                    result[i+1] = crossOX_inner(second, first);
+            }
+            else{
+                result[i] = first;
+                if(i+1 <populationSize)
+                    result[i+1] = second;
+            }
         }
         return result;
     }
@@ -61,6 +94,7 @@ public class Algorithm {
     public SimplyCodedIndividual crossOX_inner(SimplyCodedIndividual first, SimplyCodedIndividual second) {
         int[] chromosome = new int[individualGenomeSize];
         int i;
+        SimplyCodedIndividual result;
         for(i = 0; i < individualGenomeSize/2.0; i++) {
             chromosome[i] = first.getChromosome()[i];
         }
@@ -75,7 +109,11 @@ public class Algorithm {
                 i++;
             }
         }
-        return new SimplyCodedIndividual(chromosome);
+        result = new SimplyCodedIndividual(chromosome);
+        if(mutationProbability > 0.0){
+            result.mutate(mutationProbability);
+        }
+        return result;
     }
 
     private boolean contains(int[] chromosome, int value, int max) {
@@ -91,10 +129,14 @@ public class Algorithm {
     private SimplyCodedIndividual[] roulette() {
         double sum_of_points = 0;
         double upper_sum;
-        double top_value = individuals[0].validationResult() + 2;
+        double top_value = individuals[populationSize-1].validationResult();
+        System.out.println(top_value);
         Roulette[] all_of_inds = new Roulette[populationSize];
         for(int i = 0; i < individuals.length; i++){
             upper_sum = sum_of_points + (top_value - individuals[i].validationResult());
+//            System.out.println("valRes: " + individuals[i].validationResult());
+//            System.out.println("points: " + ((top_value - individuals[i].validationResult())));
+//            System.out.println("sum: "+upper_sum);
             all_of_inds[i] = new Roulette(individuals[i], sum_of_points, upper_sum);
             sum_of_points = upper_sum;
         }
@@ -117,7 +159,7 @@ public class Algorithm {
             {
                 System.out.print(item + ", ");
             }
-            System.out.println("---] \t \t" + in_array.validationResult());
+            System.out.println("] \t \t" + in_array.validationResult());
         }
         System.out.println();
         System.out.println();

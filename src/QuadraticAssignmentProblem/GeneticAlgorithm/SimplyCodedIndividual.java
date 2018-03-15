@@ -1,6 +1,7 @@
 package QuadraticAssignmentProblem.GeneticAlgorithm;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public class SimplyCodedIndividual implements  Individual, Comparable<Individual>{
     private double validationResult;
@@ -9,6 +10,7 @@ public class SimplyCodedIndividual implements  Individual, Comparable<Individual
     private int[] chromosome;
     private static double[][] weights;
     private static double[][] distances;
+    private static int counter=0;
 
     public SimplyCodedIndividual(int[] chromosome/*, double mutationProbability*/){
         this.chromosome = new int[chromosome.length];
@@ -51,10 +53,28 @@ public class SimplyCodedIndividual implements  Individual, Comparable<Individual
 
         return result;
     }
+    public void mutate(double mutationProbability){
+        Random random = new Random();
+        int swap_index;
+        for(int i = 0; i < chromosome.length;i++){
+            if(random.nextDouble() <= mutationProbability){
+                swap_index = random.nextInt(chromosome.length) + i;
+                if(swap_index >= chromosome.length){
+                    swap_index -= chromosome.length;
+                }
+                swap(i, swap_index);
+            }
+        }
+    }
+    private void swap(int from, int to){
+        int temp = chromosome[from];
+        chromosome[from] = chromosome[to];
+        chromosome[to] = temp;
+    }
 
     @Override
     public int compareTo(Individual o) {
-        return (int)(o.validationResult() - this.validationResult());
+        return (int)(this.validationResult() - o.validationResult());
     }
 
     public int[] getChromosome(){
