@@ -37,17 +37,10 @@ public class SimplyCodedIndividual implements  Individual, Comparable<Individual
     }
 
     private double calcLoss() {
-        double[][] permuted_weights = new double[chromosome.length][chromosome.length];
-
-        for(int i = 0; i < chromosome.length; i++){
-            for(int j = 0; j < chromosome.length; j++) {
-                permuted_weights[i][j] = weights[chromosome[i]][chromosome[j]];
-            }
-        }
         double result = 0;
         for(int i = 0; i < chromosome.length; i++){
             for(int j = 0; j < chromosome.length; j++) {
-                result += permuted_weights[i][j] * distances[i][j];
+                result += weights[chromosome[i]][chromosome[j]] * distances[i][j];
             }
         }
 

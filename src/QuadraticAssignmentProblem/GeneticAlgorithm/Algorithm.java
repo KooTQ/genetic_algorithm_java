@@ -116,7 +116,7 @@ public class Algorithm {
         return result;
     }
 
-    private boolean contains(int[] chromosome, int value, int max) {
+    public static boolean contains(int[] chromosome, int value, int max) {
         boolean result = false;
         for(int i = 0; i<=max && !result; i++){
             if(chromosome[i] == value) {

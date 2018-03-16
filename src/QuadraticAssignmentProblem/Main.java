@@ -3,6 +3,7 @@ package QuadraticAssignmentProblem;
 import QuadraticAssignmentProblem.GeneticAlgorithm.Algorithm;
 import QuadraticAssignmentProblem.GeneticAlgorithm.GenerationResult;
 import QuadraticAssignmentProblem.InputDataHandling.DatFileToArrays;
+import QuadraticAssignmentProblem.OtherQAPSolutions.GreedySearch;
 import QuadraticAssignmentProblem.OtherQAPSolutions.RandomSearch;
 
 import java.io.FileNotFoundException;
@@ -45,9 +46,12 @@ public class Main {
 //        SimplyCodedIndividual.setInners(distances, weights);
 //        SimplyCodedIndividual optimal = new SimplyCodedIndividual(optimal_arr);
 //        System.out.println(optimal.validationResult());
-        RandomSearch rs = new RandomSearch(population_size*generation_amount, random_seed, weights, distances);
-        int[] rs_best = rs.getBest();
-        System.out.println(Arrays.toString(rs_best));
-        System.out.println(rs.score(rs_best));
+//        RandomSearch rs = new RandomSearch(population_size*generation_amount, random_seed, weights, distances);
+//        int[] rs_best = rs.getBest();
+//        System.out.println(Arrays.toString(rs_best));
+//        System.out.println(rs.score(rs_best));
+        GreedySearch gs = new GreedySearch(weights, distances);
+        System.out.println(Arrays.toString(gs.getGreediestIndividual()));
+        System.out.println(gs.getGreediestValue());
     }
 }

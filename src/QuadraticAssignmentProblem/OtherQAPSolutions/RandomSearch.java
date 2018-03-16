@@ -76,17 +76,10 @@ public class RandomSearch {
     }
 
     public double score(int[] individual) {
-        double[][] permuted_weights = new double[individual.length][individual.length];
-
-        for(int i = 0; i < individual.length; i++){
-            for(int j = 0; j < individual.length; j++) {
-                permuted_weights[i][j] = weights[individual[i]][individual[j]];
-            }
-        }
         double result = 0;
         for(int i = 0; i < individual.length; i++){
             for(int j = 0; j < individual.length; j++) {
-                result += permuted_weights[i][j] * distances[i][j];
+                result += weights[individual[i]][individual[j]] * distances[i][j];
             }
         }
         return result;
