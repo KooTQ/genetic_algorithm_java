@@ -26,11 +26,15 @@ public class RandomSearch {
     private void populate() {
         individuals = new int[populationSize][];
         for(int i = 0; i < populationSize; i++){
-            individuals[i] = generateGenome(random);
+            individuals[i] = generateGenome(random, individualGenomeSize);
         }
     }
 
-    private int[] generateGenome(Random random){
+    private int[] generateGenome(Random random, int individualGenomeSize){
+        return getIGenome(random, individualGenomeSize);
+    }
+
+    public static int[] getIGenome(Random random, int individualGenomeSize) {
         int[] genome = new int[individualGenomeSize];
         boolean[] genome_places_used;
         genome_places_used = new boolean[individualGenomeSize];

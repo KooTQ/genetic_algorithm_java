@@ -3,6 +3,8 @@ package QuadraticAssignmentProblem.GeneticAlgorithm;
 import java.util.Arrays;
 import java.util.Random;
 
+import static QuadraticAssignmentProblem.OtherQAPSolutions.RandomSearch.getIGenome;
+
 public class Algorithm {
 
     private double[][] distances;
@@ -49,20 +51,39 @@ public class Algorithm {
     }
 
     public GenerationResult nextGen(){
-//        System.out.println("Generated");
-//        printPopulation(individuals);
-        System.out.println("Sorted");
-//        printPopulation(individuals);
 
         SimplyCodedIndividual[] chosen_ones = roulette();
-//        System.out.println("Chosen ones");
-//        printPopulation(chosen_ones);
 
         SimplyCodedIndividual[] new_invids = crossover0X(chosen_ones);
 
         System.arraycopy(new_invids, 0, individuals, 0, new_invids.length);
         Arrays.sort(individuals);
-        return new GenerationResult(0,0,0,0,0);
+        double best  = individuals[0].validationResult();
+        double median;
+        if(individuals.length %2 == 0){
+            median = individuals[populationSize/2].validationResult()/2;
+            median += individuals[populationSize/2+1].validationResult()/2;
+        }
+        else
+            median = individuals[populationSize/2+1].validationResult();
+        double mean = 0;
+        double top30 = 0;
+        double bot30 = 0;
+        int index_top30 = (int)(populationSize * 0.3);
+        int index_bot30 = (int)(populationSize * 0.7);
+        for(int i = 0; i < index_top30; i++){
+            top30 += individuals[i].validationResult()/index_top30;
+            mean += individuals[i].validationResult()/populationSize;
+        }
+        for(int i = index_top30; i < index_bot30; i++){
+            mean += individuals[i].validationResult()/populationSize;
+        }
+        for(int i = index_bot30; i < populationSize; i++){
+            bot30 += individuals[i].validationResult()/index_top30;
+            mean += individuals[i].validationResult()/populationSize;
+        }
+
+        return new GenerationResult(mean, median, best, top30, bot30);
     }
 
     private SimplyCodedIndividual[] crossover0X(SimplyCodedIndividual[] chosen_ones) {
@@ -130,13 +151,9 @@ public class Algorithm {
         double sum_of_points = 0;
         double upper_sum;
         double top_value = individuals[populationSize-1].validationResult();
-        System.out.println(top_value);
         Roulette[] all_of_inds = new Roulette[populationSize];
         for(int i = 0; i < individuals.length; i++){
             upper_sum = sum_of_points + (top_value - individuals[i].validationResult());
-//            System.out.println("valRes: " + individuals[i].validationResult());
-//            System.out.println("points: " + ((top_value - individuals[i].validationResult())));
-//            System.out.println("sum: "+upper_sum);
             all_of_inds[i] = new Roulette(individuals[i], sum_of_points, upper_sum);
             sum_of_points = upper_sum;
         }
@@ -190,33 +207,7 @@ public class Algorithm {
 //        return result;
 //    }
     private int[] generateGenome(Random random){
-        int[] genome = new int[individualGenomeSize];
-        boolean[] genome_places_used;
-        genome_places_used = new boolean[individualGenomeSize];
-        for(int j=0;j<individualGenomeSize;j++){
-            genome_places_used[j] = false;
-        }
-        int set_numbers = 0;
-        while(set_numbers < individualGenomeSize){
-            int place = random.nextInt(individualGenomeSize);
-            if(!genome_places_used[place]){
-                genome_places_used[place] = true;
-                genome[place] = set_numbers;
-                set_numbers++;
-            }
-            else{
-                boolean flag = false;
-                for(int k = 0; k < individualGenomeSize && !flag; k++){
-                    if(!genome_places_used[k]){
-                        genome_places_used[k] = true;
-                        genome[k] = set_numbers;
-                        set_numbers++;
-                        flag = true;
-                    }
-                }
-            }
-        }
-        return genome;
+        return getIGenome(random, individualGenomeSize);
     }
 
     public static double[][] deepCopy(double[][] original) {

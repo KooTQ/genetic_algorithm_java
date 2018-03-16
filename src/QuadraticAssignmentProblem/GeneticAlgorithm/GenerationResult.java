@@ -38,4 +38,11 @@ public class GenerationResult {
 
         return mean;
     }
+    public void add(GenerationResult other){
+        this.mean += other.mean;
+        this.median += other.median;
+        this.best += other.best;
+        this.top30 += other.top30;
+        this.bot30 += other.bot30;
+    }
 }
