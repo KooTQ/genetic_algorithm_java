@@ -5,14 +5,13 @@ import QuadraticAssignmentProblem.GeneticAlgorithm.GenerationResult;
 import QuadraticAssignmentProblem.GeneticAlgorithm.SimplyCodedIndividual;
 import QuadraticAssignmentProblem.InputDataHandling.DatFileToArrays;
 import QuadraticAssignmentProblem.OtherQAPSolutions.GreedySearch;
-import QuadraticAssignmentProblem.OtherQAPSolutions.RandomSearch;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
-public class Main {
+public class GeneticAlgorithmEvaluationMain {
     public static void main(String[] args) throws FileNotFoundException {
         //3 10 30 50 100 500 1000 10000
         int generation_amount = 10000;
@@ -114,11 +113,6 @@ public class Main {
         System.out.println(Arrays.toString(gs.getGreediestIndividual()));
         System.out.println(gs.getGreediestValue());
 
-        System.out.println("Random Search: ");
-        RandomSearch rs = new RandomSearch(population_size*generation_amount, random_seed, weights, distances);
-        int[] rs_best = rs.getBest();
-        System.out.println(Arrays.toString(rs_best));
-        System.out.println(rs.score(rs_best));
 
     }
 }

@@ -112,7 +112,7 @@ public class Algorithm {
         return result;
     }
 
-    public SimplyCodedIndividual crossOX_inner(SimplyCodedIndividual first, SimplyCodedIndividual second) {
+    private SimplyCodedIndividual crossOX_inner(SimplyCodedIndividual first, SimplyCodedIndividual second) {
         int[] chromosome = new int[individualGenomeSize];
         int i;
         SimplyCodedIndividual result;
