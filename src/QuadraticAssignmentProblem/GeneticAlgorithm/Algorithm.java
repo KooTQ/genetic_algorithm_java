@@ -17,9 +17,12 @@ public class Algorithm {
     private int keepBest;
     private double crossingProbability;
     private double mutationProbability;
+    private int sizeOfTournament;
+    private boolean doRoulette;
 
     public Algorithm(double[][] distances, double[][] weights, int populationSize, long randomSeed,
-                     double keepBest, double crossingProbability, double mutationProbability){
+                     double keepBest, double crossingProbability, double mutationProbability, int sizeOfTournament,
+                     boolean doRoulette){
         this.distances = deepCopy(distances);
         this.weights = deepCopy(weights);
 
@@ -27,9 +30,19 @@ public class Algorithm {
         this.randomSeed = randomSeed;
         this.individualGenomeSize = weights[0].length;
         this.random = new Random(this.randomSeed);
+        this.doRoulette = doRoulette;
         SimplyCodedIndividual.setInners(this.distances, this.weights);
         populate(this.populationSize);
         Arrays.sort(individuals);
+        if(sizeOfTournament < 0){
+            this.sizeOfTournament = 0;
+        }
+        else if(sizeOfTournament > populationSize){
+            this.sizeOfTournament = populationSize;
+        }
+        else {
+            this.sizeOfTournament = sizeOfTournament;
+        }
         if(crossingProbability >= 0 && crossingProbability <=1.0){
             this.crossingProbability = crossingProbability;
         }
@@ -51,8 +64,14 @@ public class Algorithm {
     }
 
     public GenerationResult nextGen(){
-
-        SimplyCodedIndividual[] chosen_ones = roulette();
+        SimplyCodedIndividual[] chosen_ones;
+        if(doRoulette) {
+            chosen_ones = roulette();
+        }
+        else{
+            chosen_ones = individuals;
+        }
+        chosen_ones = tournament(chosen_ones);
 
         SimplyCodedIndividual[] new_invids = crossover0X(chosen_ones);
 
@@ -151,10 +170,10 @@ public class Algorithm {
         double sum_of_points = 0;
         double upper_sum;
         double top_value = individuals[populationSize-1].validationResult();
-        Roulette[] all_of_inds = new Roulette[populationSize];
+        RoulettePiece[] all_of_inds = new RoulettePiece[populationSize];
         for(int i = 0; i < individuals.length; i++){
             upper_sum = sum_of_points + (top_value - individuals[i].validationResult());
-            all_of_inds[i] = new Roulette(individuals[i], sum_of_points, upper_sum);
+            all_of_inds[i] = new RoulettePiece(individuals[i], sum_of_points, upper_sum);
             sum_of_points = upper_sum;
         }
         Random rand = new Random();
@@ -163,6 +182,26 @@ public class Algorithm {
         for(int i = 0; i < chosen_ones.length;i++){
             double value = rand.nextDouble()*sum_of_points;
             chosen_ones[i] = choose(all_of_inds, value);
+        }
+
+        return chosen_ones;
+    }
+
+    private SimplyCodedIndividual[] tournament(SimplyCodedIndividual[] individuals){
+        SimplyCodedIndividual[] chosen_ones = new SimplyCodedIndividual[populationSize];
+        SimplyCodedIndividual[] single_tournament = new SimplyCodedIndividual[sizeOfTournament];
+        double bestValue = Double.MAX_VALUE;
+        for(int i = 0 ; i < populationSize; i++){
+            for(int j = 0; j < sizeOfTournament; j++) {
+                single_tournament[i] = individuals[random.nextInt(populationSize)];
+            }
+            for(SimplyCodedIndividual individual: single_tournament){
+                if(individual.validationResult() < bestValue){
+                    single_tournament[i] = individual;
+                    bestValue = individual.validationResult();
+                }
+            }
+
         }
 
         return chosen_ones;
@@ -182,7 +221,7 @@ public class Algorithm {
         System.out.println();
     }
 
-    private SimplyCodedIndividual choose(Roulette[] all_of_inds, double value) {
+    private SimplyCodedIndividual choose(RoulettePiece[] all_of_inds, double value) {
         SimplyCodedIndividual result = null;
         for(int i = 0; i < all_of_inds.length && result == null; i++){
             if(all_of_inds[i].upper >= value){
@@ -222,12 +261,12 @@ public class Algorithm {
         return result;
     }
 }
-class Roulette{
+class RoulettePiece {
     SimplyCodedIndividual s;
     double lower;
     double upper;
 
-    Roulette(SimplyCodedIndividual s, double lower, double upper){
+    RoulettePiece(SimplyCodedIndividual s, double lower, double upper){
         this.s = s;
         this.lower = lower;
         this.upper = upper;
